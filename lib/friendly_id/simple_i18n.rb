@@ -91,7 +91,7 @@ current locale:
       end
 
       def slug=(value)
-        super
+        super if defined?(super)
         write_attribute friendly_id_config.slug_column, value
       end
     end
