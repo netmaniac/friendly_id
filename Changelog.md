@@ -5,9 +5,35 @@ suggestions, ideas and improvements to FriendlyId.
 
 ## Unreleased
 
-* Make `first_by_friendly_id` case insensitive using `downcase`. ([#787](https://github.com/norman/friendly_id/pull/787))
+* Fix: history not using `parse_friendly_id`. ([#1020](https://github.com/norman/friendly_id/pull/1020))
+
+## 5.5.1 (2023-11-13)
+
+* Fix YARD doc generation. ([#1006](https://github.com/norman/friendly_id/pull/1006))
+
+## 5.5.0 (2022-11-16)
+
+* SimpleI18n: Handle regional locales ([#965](https://github.com/norman/friendly_id/pull/965))
+* Fix: "unknown column" exception ([#943](https://github.com/norman/friendly_id/pull/943))
+* Add: `allow_nil: true` to the Finder ([#995](https://github.com/norman/friendly_id/pull/995) and [#997](https://github.com/norman/friendly_id/pull/997))
+
+## 5.4.2 (2021-01-07)
+
+* Fix: Set slug before save if needed ([#948](https://github.com/norman/friendly_id/pull/948))
+* Revert "Make `first_by_friendly_id` case insensitive using `downcase`" ([#951](https://github.com/norman/friendly_id/pull/951))
+
+## 5.4.1 (2020-11-06)
+
+* Fix unexpected `:slug` error on valid, unpersisted model ([#952](https://github.com/norman/friendly_id/pull/952))
+
+## 5.4.0 (2020-08-14)
+
+* Fix Ruby 2.7 keyword params deprecation warning ([#939](https://github.com/norman/friendly_id/pull/939))
+* Fix Slug Validation in `unset_slug_if_invalid` ([#938](https://github.com/norman/friendly_id/pull/938))
+* Make `first_by_friendly_id` case insensitive using `downcase` ([#787](https://github.com/norman/friendly_id/pull/787))
 * Use `destroy_all` rather than `delete_all` when creating historical slugs ([#924](https://github.com/norman/friendly_id/pull/924))
-* Avoid using deprecated `update_attributes`. ([#922](https://github.com/norman/friendly_id/pull/922))
+* Set required ruby version to `>= 2.1.0` ([#923](https://github.com/norman/friendly_id/pull/923))
+* Avoid using deprecated `update_attributes` ([#922](https://github.com/norman/friendly_id/pull/922))
 
 ## 5.3.0 (2019-09-25)
 

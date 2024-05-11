@@ -9,47 +9,52 @@ jobs:
   test:
     strategy:
       matrix:
-        architecture: [ x64 ]
         database: [ mysql, postgresql ]
-        gemfile: [ '6.0', '5.2', '5.1', '5.0' ]
-        ruby: [ '2.6.x', '2.5.x' ]
+        gemfile: [ '7.1', '7.0', '6.1', '6.0' ]
+        ruby: [ '2.7', '3.0', '3.1', '3.2' ]
+        exclude:
+          - ruby: '3.2'
+            gemfile: '6.0'
+          - ruby: '3.2'
+            gemfile: '6.1'
       fail-fast: false
     runs-on: ubuntu-latest
-    name: ${{ matrix.ruby }} ${{ matrix.database }} rails-${{ matrix.gemfile }}
-    steps:
-    - uses: actions/setup-ruby@v1.0.0
-      with:
-        architecture: ${{ matrix.architecture }}
-        ruby-version: ${{ matrix.ruby }}
-        version: ${{ matrix.ruby }}
-    - uses: actions/checkout@v1
-    - run: sudo apt-get update && sudo apt-get install libpq-dev postgresql-client libmysqlclient-dev libsqlite3-dev -y
-    - id: cache-bundler
-      uses: actions/cache@v1
-      with:
-        path: vendor/bundle
-        key: ${{ matrix.ruby }}-gem-${{ hashFiles(format('gemfiles/Gemfile.rails-{0}.rb', matrix.gemfile)) }}
-    - run: gem install bundler
-    - run: bundle install --path vendor/bundle
-    - run: bundle exec rake db:create db:up
-    - run: bundle exec rake test
 
     env:
-      BUNDLE_JOBS: 4
       BUNDLE_GEMFILE: gemfiles/Gemfile.rails-${{ matrix.gemfile }}.rb
-      BUNDLE_PATH: vendor/bundle
       CI: true
       COVERALLS: true
       DB: ${{ matrix.database }}
       MYSQL_PASSWORD: root
       PGHOST: localhost
-      PGPORT: 5432
-      PGUSER: postgres
+      PGPASSWORD: runner
+      PGUSER: runner
       RAILS_ENV: test
 
-    services:
-      postgres:
-        image: postgres:11.5
-        ports: ["5432:5432"]
-        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+    name: ${{ matrix.ruby }} ${{ matrix.database }} rails-${{ matrix.gemfile }}
+    steps:
+    - uses: actions/checkout@v4
 
+    - run: sudo apt-get update && sudo apt-get install libsqlite3-dev -y
+
+    - name: "Set up MySQL using VM's server"
+      if: ${{ env.DB == 'mysql' }}
+      run: |
+        sudo apt-get install libmysqlclient-dev -y
+        sudo systemctl start mysql.service
+
+    - name: "Set up PostgreSQL using VM's server"
+      if: ${{ env.DB == 'postgresql' }}
+      run: |
+        sudo apt-get install libpq-dev -y
+        sudo systemctl start postgresql.service
+        sudo -u postgres psql -c "CREATE USER runner WITH SUPERUSER PASSWORD 'runner'"
+        sudo -u postgres createdb runner
+
+    - uses: ruby/setup-ruby@v1
+      with:
+        bundler-cache: true
+        ruby-version: ${{ matrix.ruby }}
+
+    - run: bundle exec rake db:{create,up}
+    - run: bundle exec rake test

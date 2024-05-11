@@ -1,10 +1,10 @@
 [![Build Status](https://github.com/norman/friendly_id/workflows/CI/badge.svg)](https://github.com/norman/friendly_id/actions)
 [![Code Climate](https://codeclimate.com/github/norman/friendly_id.svg)](https://codeclimate.com/github/norman/friendly_id)
-[![Inline docs](http://inch-ci.org/github/norman/friendly_id.svg?branch=master)](http://inch-ci.org/github/norman/friendly_id)
+[![Inline docs](https://inch-ci.org/github/norman/friendly_id.svg?branch=master)](https://inch-ci.org/github/norman/friendly_id)
 
 # FriendlyId
 
-**For the most complete, user-friendly documentation, see the [FriendlyId Guide](http://norman.github.io/friendly_id/file.Guide.html).**
+**For the most complete, user-friendly documentation, see the [FriendlyId Guide](https://norman.github.io/friendly_id/file.Guide.html).**
 
 FriendlyId is the "Swiss Army bulldozer" of slugging and permalink plugins for
 Active Record. It lets you create pretty URLs and work with human-friendly
@@ -12,16 +12,16 @@ strings as if they were numeric ids.
 
 With FriendlyId, it's easy to make your application use URLs like:
 
-    http://example.com/states/washington
+    https://example.com/states/washington
 
 instead of:
 
-    http://example.com/states/4323454
+    https://example.com/states/4323454
 
 
 ## Getting Help
 
-Ask questions on [Stack Overflow](http://stackoverflow.com/questions/tagged/friendly-id)
+Ask questions on [Stack Overflow](https://stackoverflow.com/questions/tagged/friendly-id)
 using the "friendly-id" tag, and for bugs have a look at [the bug section](https://github.com/norman/friendly_id#bugs)
 
 ## FriendlyId Features
@@ -39,8 +39,10 @@ FriendlyId offers many advanced features, including:
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'friendly_id', '~> 5.2.4' # Note: You MUST use 5.0.0 or greater for Rails 4.0+
+gem 'friendly_id', '~> 5.5.0'
 ```
+
+Note: You MUST use 5.0.0 or greater for Rails 4.0+.
 
 And then execute:
 
@@ -102,10 +104,31 @@ existing users, do this from the console, runner, or add a Rake task:
 User.find_each(&:save)
 ```
 
+## Options
+
+### `:allow_nil`
+
+You can pass `allow_nil: true` to the `friendly.find()` method if you want to
+avoid raising `ActiveRecord::RecordNotFound` and accept `nil`.
+
+#### Example
+
+```ruby
+MyModel.friendly.find("bad-slug") # where bad-slug is not a valid slug
+MyModel.friendly.find(123)        # where 123 is not a valid primary key ID
+MyModel.friendly.find(nil)        # maybe you have a variable/param that's potentially nil
+#=> raise ActiveRecord::RecordNotFound
+
+MyModel.friendly.find("bad-slug", allow_nil: true)
+MyModel.friendly.find(123, allow_nil: true)
+MyModel.friendly.find(nil, allow_nil: true)
+#=> nil
+```
+
 ## Bugs
 
 Please report them on the [Github issue
-tracker](http://github.com/norman/friendly_id/issues) for this project.
+tracker](https://github.com/norman/friendly_id/issues) for this project.
 
 If you have a bug to report, please include the following information:
 
@@ -131,7 +154,7 @@ volunteers](https://github.com/norman/friendly_id/contributors).
 
 ## License
 
-Copyright (c) 2008-2016 Norman Clarke and contributors, released under the MIT
+Copyright (c) 2008-2020 Norman Clarke and contributors, released under the MIT
 license.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of

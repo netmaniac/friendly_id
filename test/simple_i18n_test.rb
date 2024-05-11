@@ -5,7 +5,7 @@ class SimpleI18nTest < TestCaseClass
 
   class Journalist < ActiveRecord::Base
     extend FriendlyId
-    friendly_id :name, :use => :simple_i18n
+    friendly_id :name, use: :simple_i18n
   end
 
   def setup
@@ -13,8 +13,9 @@ class SimpleI18nTest < TestCaseClass
   end
 
   test "friendly_id should return the current locale's slug" do
-    journalist = Journalist.new(:name => "John Doe")
+    journalist = Journalist.new(name: "John Doe")
     journalist.slug_es = "juan-fulano"
+    journalist.slug_fr_ca = "jean-dupont"
     journalist.valid?
     I18n.with_locale(I18n.default_locale) do
       assert_equal "john-doe", journalist.friendly_id
@@ -22,17 +23,20 @@ class SimpleI18nTest < TestCaseClass
     I18n.with_locale(:es) do
       assert_equal "juan-fulano", journalist.friendly_id
     end
+    I18n.with_locale(:"fr-CA") do
+      assert_equal "jean-dupont", journalist.friendly_id
+    end
   end
 
   test "should create record with slug in column for the current locale" do
     I18n.with_locale(I18n.default_locale) do
-      journalist = Journalist.new(:name => "John Doe")
+      journalist = Journalist.new(name: "John Doe")
       journalist.valid?
       assert_equal "john-doe", journalist.slug_en
       assert_nil journalist.slug_es
     end
     I18n.with_locale(:es) do
-      journalist = Journalist.new(:name => "John Doe")
+      journalist = Journalist.new(name: "John Doe")
       journalist.valid?
       assert_equal "john-doe", journalist.slug_es
       assert_nil journalist.slug_en
@@ -41,7 +45,7 @@ class SimpleI18nTest < TestCaseClass
 
   test "to_param should return the numeric id when there's no slug for the current locale" do
     transaction do
-      journalist = Journalist.new(:name => "Juan Fulano")
+      journalist = Journalist.new(name: "Juan Fulano")
       I18n.with_locale(:es) do
         journalist.save!
         assert_equal "juan-fulano", journalist.to_param
@@ -52,7 +56,7 @@ class SimpleI18nTest < TestCaseClass
 
   test "should set friendly id for locale" do
     transaction do
-      journalist = Journalist.create!(:name => "John Smith")
+      journalist = Journalist.create!(name: "John Smith")
       journalist.set_friendly_id("Juan Fulano", :es)
       journalist.save!
       assert_equal "juan-fulano", journalist.slug_es
@@ -65,7 +69,7 @@ class SimpleI18nTest < TestCaseClass
   test "set friendly_id should fall back default locale when none is given" do
     transaction do
       journalist = I18n.with_locale(:es) do
-        Journalist.create!(:name => "Juan Fulano")
+        Journalist.create!(name: "Juan Fulano")
       end
       journalist.set_friendly_id("John Doe")
       journalist.save!
@@ -75,9 +79,9 @@ class SimpleI18nTest < TestCaseClass
 
   test "should sequence localized slugs" do
     transaction do
-      journalist = Journalist.create!(:name => "John Smith")
+      journalist = Journalist.create!(name: "John Smith")
       I18n.with_locale(:es) do
-        Journalist.create!(:name => "Juan Fulano")
+        Journalist.create!(name: "Juan Fulano")
       end
       journalist.set_friendly_id("Juan Fulano", :es)
       journalist.save!
@@ -93,12 +97,12 @@ class SimpleI18nTest < TestCaseClass
 
     test "should not overwrite other locale's slugs on update" do
       transaction do
-        journalist = Journalist.create!(:name => "John Smith")
+        journalist = Journalist.create!(name: "John Smith")
         journalist.set_friendly_id("Juan Fulano", :es)
         journalist.save!
         assert_equal "john-smith", journalist.to_param
         journalist.slug = nil
-        journalist.update :name => "Johnny Smith"
+        journalist.update name: "Johnny Smith"
         assert_equal "johnny-smith", journalist.to_param
         I18n.with_locale(:es) do
           assert_equal "juan-fulano", journalist.to_param
@@ -114,11 +118,17 @@ class SimpleI18nTest < TestCaseClass
       end
     end
 
+    test "should add locale to slug column for a locale with a region subtag" do
+      I18n.with_locale :"fr-CA" do
+        assert_equal "slug_fr_ca", Journalist.friendly_id_config.slug_column
+      end
+    end
+
     test "should add locale to non-default slug column and non-default locale" do
       model_class = Class.new(ActiveRecord::Base) do
         self.abstract_class = true
         extend FriendlyId
-        friendly_id :name, :use => :simple_i18n, :slug_column => :foo
+        friendly_id :name, use: :simple_i18n, slug_column: :foo
       end
       I18n.with_locale :es do
         assert_equal "foo_es", model_class.friendly_id_config.slug_column
